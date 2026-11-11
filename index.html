@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Postador</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#E6DAC1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Postador">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Estética Apex Academy (gabrielfarias.online/apex2): creme, bronze e dourado, serifa Fraunces, card escuro quase preto,
+   rótulos pequenos espaçados em maiúsculas, abas em pílula escura, cards claros com fio fino.
+   Layout: app de celular, coluna de 440px, resumo em cima e lista por abas embaixo. */
+:root {
+  --fundo: #E6DAC1;
+  --papel: #F1EAD9;
+  --fio: #D9CFBE;
+  --tinta: #241A10;
+  --suave: #7B6A52;
+  --oliva: #141210;
+  --oliva2: #2A2218;
+  --ouro: #A67329;
+  --ouro-claro: #F2B632;
+  --verde: #4F7A5A;
+  --erro: #B4472E;
+  --serif: "Fraunces", Georgia, serif;
+  --corpo: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--fundo); color: var(--tinta); font-family: var(--corpo); }
+.app { max-width: 420px; margin: 0 auto; padding: 14px 16px 32px; display: flex; flex-direction: column; gap: 12px; }
+.rotulo { font-size: 9px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ouro); }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.perfil { display: flex; align-items: center; gap: 10px; }
+.selo { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--ouro); display: grid; place-items: center; font-family: var(--serif); font-style: italic; color: var(--ouro); font-size: 15px; background: var(--papel); }
+.perfil div { display: flex; flex-direction: column; gap: 1px; }
+.perfil b { font-size: 13px; font-weight: 600; }
+.pulso { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: var(--papel); border: 1px solid var(--fio); font-size: 11px; font-weight: 600; white-space: nowrap; }
+.pulso i { width: 7px; height: 7px; border-radius: 50%; background: var(--suave); }
+.pulso.ok i { background: var(--verde); box-shadow: 0 0 0 4px rgba(79,122,90,.18); }
+.pulso.alerta i { background: var(--ouro); }
+.hero { background: radial-gradient(120% 90% at 100% 0%, var(--oliva2), var(--oliva)); color: #F4EDE0; border-radius: 18px; border: 1px solid rgba(244,236,220,.06); padding: 16px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
+.hero .rotulo { color: #D9A84A; }
+.hero h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1.05; letter-spacing: -.01em; color: #F4EDE0; }
+.hero h1 em { color: #D9A84A; font-style: italic; }
+.hero p { margin: 0; font-size: 13px; line-height: 1.5; color: rgba(244,237,224,.62); }
+.hero .emblema { position: absolute; top: 16px; right: 16px; width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(217,168,74,.55); display: grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 16px; color: #D9A84A; }
+.prox { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(166,115,41,.45); border-radius: 12px; padding: 10px; }
+.prox .ico { width: 28px; height: 28px; flex: none; border-radius: 8px; font-size: 11px; background: var(--ouro-claro); color: var(--oliva); display: grid; place-items: center; font-weight: 700; }
+.prox .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.prox .txt small { font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; color: #D9A84A; font-weight: 600; }
+.prox .txt b { font-size: 13px; font-weight: 600; color: #F4EDE0; overflow-wrap: anywhere; }
+.prox .txt span { font-size: 11px; color: rgba(244,237,224,.62); font-variant-numeric: tabular-nums; }
+.numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.num .rotulo { white-space: nowrap; }
+.num { background: var(--papel); border: 1px solid var(--fio); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.num b { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--tinta); line-height: .9; font-variant-numeric: tabular-nums; }
+.num.erro b { color: var(--erro); }
+.abas { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--papel); border: 1px solid var(--fio); border-radius: 999px; padding: 4px; gap: 4px; }
+.abas button { border: 0; background: transparent; color: var(--suave); font: 600 12px var(--corpo); padding: 7px 6px; border-radius: 999px; cursor: pointer; }
+.abas button[aria-selected="true"] { background: var(--oliva); color: #F4EDE0; }
+.abas button:focus-visible, .btn:focus-visible, .item summary:focus-visible, footer button:focus-visible { outline: 2px solid var(--ouro); outline-offset: 2px; }
+.secao { display: flex; align-items: baseline; justify-content: space-between; }
+.secao h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 19px; }
+.secao h2 em { color: var(--ouro); font-style: italic; }
+.lista { display: flex; flex-direction: column; gap: 8px; }
+.item { background: var(--papel); border: 1px solid var(--fio); border-radius: 14px; overflow: hidden; }
+.item summary { list-style: none; cursor: pointer; padding: 11px 12px; display: flex; flex-direction: column; gap: 6px; }
+.item summary::-webkit-details-marker { display: none; }
+.topo { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.topo h3 { margin: 0; font-size: 13px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.hora { font-size: 11px; color: var(--suave); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; border: 1px solid var(--fio); color: var(--suave); background: var(--fundo); }
+.chip.teste { color: #8A5D1E; border-color: rgba(166,115,41,.4); background: rgba(166,115,41,.12); }
+.chip.ok { color: var(--verde); border-color: rgba(79,122,90,.35); background: rgba(79,122,90,.1); }
+.chip.ruim { color: var(--erro); border-color: rgba(180,71,46,.35); background: rgba(180,71,46,.07); }
+.chip.escuro { color: #F4EDE0; background: var(--oliva); border-color: var(--oliva); }
+.item.postado { box-shadow: inset 3px 0 0 var(--verde); }
+.item.erro { box-shadow: inset 3px 0 0 var(--erro); }
+.item.agendado { box-shadow: inset 3px 0 0 var(--ouro); }
+.det { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 12px; line-height: 1.5; color: #463320; border-top: 1px solid var(--fio); padding-top: 12px; margin: 0 14px; padding-left: 0; padding-right: 0; }
+.det p { margin: 0; white-space: pre-wrap; }
+.det .msgerro { color: var(--erro); font-size: 12px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; border-radius: 999px; background: var(--oliva); color: #F4EDE0; font: 600 10.5px var(--corpo); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; border: 0; cursor: pointer; }
+.btn.ouro { background: linear-gradient(180deg, #E3B24A, #C99536); color: #241A10; }
+.vazio { color: var(--suave); text-align: center; padding: 18px 8px; font-family: var(--serif); font-style: italic; font-size: 15px; }
+.aviso { background: var(--papel); border: 1px solid var(--fio); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.5; }
+.aviso b { font-family: var(--serif); font-weight: 400; font-size: 17px; }
+footer { color: var(--suave); font-size: 10.5px; display: flex; flex-direction: column; gap: 6px; text-align: center; letter-spacing: .04em; }
+footer button { background: none; border: 0; color: var(--ouro); font: 600 11px var(--corpo); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) { .pulso.ok i { animation: bate 2s ease-in-out infinite; } }
+@keyframes bate { 50% { box-shadow: 0 0 0 7px rgba(91,122,54,.05); } }
+
+.app { padding-top: max(14px, env(safe-area-inset-top)); padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+.notif { background: var(--papel); border: 1px solid var(--fio); border-radius: 14px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; line-height: 1.4; }
+.notif div { display: flex; flex-direction: column; gap: 3px; }
+.notif b { font-size: 13px; }
+.notif span { color: var(--suave); }
+.login { min-height: 70vh; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+.login h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.05; }
+.login h1 em { color: var(--ouro); font-style: italic; }
+.login p { margin: 0; color: var(--suave); font-size: 13px; line-height: 1.5; }
+.login label { font-size: 9px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ouro); }
+.login input { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--fio); background: var(--papel); font: 600 16px var(--corpo); letter-spacing: .12em; text-transform: uppercase; color: var(--tinta); }
+.login input:focus { outline: 2px solid var(--ouro); outline-offset: 1px; }
+.login .msg { color: var(--erro); font-size: 12px; min-height: 16px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main class="app login" id="telaLogin" hidden>
+  <span class="selo" aria-hidden="true">A</span>
+  <h1>Seu <em>postador</em></h1>
+  <p>Digite seu código de acesso. É só uma vez: depois o app lembra neste celular.</p>
+  <label for="codigo">Código de acesso</label>
+  <input id="codigo" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX">
+  <button class="btn ouro" id="entrar" type="button">Entrar</button>
+  <span class="msg" id="msgLogin"></span>
+</main>
+
+<main class="app" id="telaApp" hidden>
+  <header>
+    <div class="perfil">
+      <span class="selo" aria-hidden="true">A</span>
+      <div><span class="rotulo">Postador Apex</span><b>@itsgabrielanjos</b></div>
+    </div>
+    <div class="pulso" id="pulso"><i></i><span id="pulsoTxt">Carregando</span></div>
+  </header>
+
+  <section class="hero" aria-label="Próximo post">
+    <span class="emblema" aria-hidden="true">R</span>
+    <span class="rotulo">Área de postagens</span>
+    <h1>Seus <em>Reels</em></h1>
+    <div class="prox" id="proximo"><span class="ico">▶</span><div class="txt"><small>Próximo post</small><b>Buscando a fila…</b></div></div>
+  </section>
+
+  <section class="notif" id="notif" aria-live="polite"></section>
+
+  <section class="numeros" aria-label="Resumo">
+    <div class="num"><span class="rotulo">Na fila</span><b id="nFila">–</b></div>
+    <div class="num"><span class="rotulo">No ar · 7d</span><b id="nPost">–</b></div>
+    <div class="num erro"><span class="rotulo">Erros</span><b id="nErro">–</b></div>
+  </section>
+
+  <nav class="abas" role="tablist" aria-label="Listas">
+    <button role="tab" id="aba-fila" aria-selected="true" data-aba="fila">Fila</button>
+    <button role="tab" id="aba-postados" aria-selected="false" data-aba="postados">Postados</button>
+    <button role="tab" id="aba-erros" aria-selected="false" data-aba="erros">Erros</button>
+  </nav>
+
+  <div class="secao"><h2 id="tituloLista">Na <em>fila</em></h2><span class="rotulo" id="contaLista"></span></div>
+  <section class="lista" id="lista" aria-live="polite"></section>
+
+  <footer>
+    <span id="visto">–</span>
+    <span><button id="atualizar" type="button">Atualizar agora</button> · <button id="sair" type="button">Sair</button></span>
+  </footer>
+</main>
+<script>
+const API = "https://mdkvmsnbgcmbxwowvtzj.supabase.co/functions/v1/postador-app";
+let aba = "fila", itens = [], linhas = {}, vapid = "", codigo = "";
+try { codigo = localStorage.getItem("postador_codigo") || ""; } catch {}
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tituloDe = (id) => String(id).replace(/^\d{4}-\d{2}-\d{2}\s+\d{1,2}h\d{0,2}\s*-?\s*/, "") || id;
+const fmtHora = (iso) => {
+  const d = new Date(iso); if (isNaN(d)) return "";
+  const hoje = new Date(), amanha = new Date(Date.now() + 864e5);
+  const hm = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+  const dia = (x) => x.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  if (dia(d) === dia(hoje)) return "hoje " + hm;
+  if (dia(d) === dia(amanha)) return "amanhã " + hm;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo" }) + " " + hm;
+};
+const falta = (iso) => {
+  const ms = new Date(iso) - Date.now();
+  if (ms <= 0) return "agora";
+  const m = Math.round(ms / 6e4), h = Math.floor(m / 60);
+  return h >= 24 ? `em ${Math.floor(h / 24)}d ${h % 24}h` : h ? `em ${h}h${String(m % 60).padStart(2, "0")}` : `em ${m} min`;
+};
+const atras = (iso) => {
+  if (!iso) return "nunca";
+  const m = Math.round((Date.now() - new Date(iso)) / 6e4);
+  return m < 1 ? "agora" : m < 60 ? `há ${m} min` : m < 1440 ? `há ${Math.floor(m / 60)}h` : `há ${Math.floor(m / 1440)}d`;
+};
+const linkDe = (t) => (String(t || "").match(/https:\/\/www\.instagram\.com\/\S+/) || [])[0] || "";
+
+// Junta o que o Mac e a nuvem mandaram num item por post.
+function juntar() {
+  const mapa = new Map();
+  const pegar = (id) => { if (!mapa.has(id)) mapa.set(id, { id, titulo: tituloDe(id) }); return mapa.get(id); };
+  const mac = linhas.mac?.dados || {}, nuvem = linhas.nuvem?.dados || {};
+  const historicos = [...(nuvem.historico || []), ...(mac.historico || [])];
+  for (const h of historicos) {
+    const it = pegar(h.id);
+    if (h.status === "postado") Object.assign(it, { postado: true, link: h.link || it.link, quandoPost: h.postado_em || it.quandoPost });
+    if (h.status === "erro" && !it.postado) Object.assign(it, { erro: h.erro });
+    it.horario ||= h.horario; it.legenda ||= h.legenda; if (h.teste) it.teste = true;
+    it.via ||= h.via || "nuvem";
+  }
+  const filaRecente = [nuvem, mac].filter((x) => x.fila).sort((a, b) => String(b.enviado).localeCompare(String(a.enviado)))[0]?.fila || [];
+  for (const f of filaRecente) {
+    const it = pegar(f.id);
+    it.horario = f.horario; it.legenda = f.legenda ?? it.legenda; if (f.teste) it.teste = true; it.via = "nuvem";
+    if (f.status === "postado") Object.assign(it, { postado: true, link: f.link, quandoPost: f.postado_em });
+    else if (f.status === "erro") { if (!it.postado) it.erro = f.erro; }
+    else { it.pendente = true; it.postando = f.status === "postando"; }
+  }
+  for (const l of mac.local || []) {
+    const it = pegar(l.id);
+    it.horario ||= l.horario; it.legenda ||= l.legenda; if (l.teste) it.teste = true;
+    if (l.status === "postado") { it.postado = true; it.link ||= linkDe(l.resultado); }
+    else if (l.status === "erro") { if (!it.postado && !it.pendente) it.erro ||= l.resultado.replace(/^Erro[^:]*:\s*/, ""); }
+    else if (!it.postado) { it.pendente = true; it.erro = undefined; it.via = l.status === "nuvem" ? "nuvem" : (it.via || "mac"); if (l.status === "fila") it.aguardaEnvio = true; if (l.status === "postando") it.postando = true; }
+  }
+  for (const it of mapa.values()) if (it.pendente && !it.postado) it.erro = undefined;
+  itens = [...mapa.values()];
+}
+
+function chips(it, extra = "") {
+  const c = [];
+  c.push(it.teste ? `<span class="chip teste">Reels de teste</span>` : `<span class="chip escuro">Perfil</span>`);
+  if (it.postado) c.push(`<span class="chip ok">Postado</span>`);
+  else if (it.postando) c.push(`<span class="chip ok">Postando…</span>`);
+  else if (it.erro) c.push(`<span class="chip ruim">Erro</span>`);
+  else if (it.aguardaEnvio) c.push(`<span class="chip">Subindo pra nuvem</span>`);
+  else c.push(`<span class="chip">${it.via === "mac" ? "Mac" : "Nuvem"}</span>`);
+  return `<div class="chips">${c.join("")}${extra}</div>`;
+}
+
+function card(it) {
+  const classe = it.postado ? "postado" : it.erro ? "erro" : "agendado";
+  const quando = it.postado ? (it.quandoPost || fmtHora(it.horario)) : fmtHora(it.horario);
+  const det = [];
+  if (it.legenda) det.push(`<p>${esc(it.legenda)}</p>`);
+  if (it.erro) det.push(`<p class="msgerro">${esc(it.erro)}</p>`);
+  if (it.link) det.push(`<a class="btn ouro" href="${esc(it.link)}" target="_blank" rel="noopener">Abrir no Instagram ↗</a>`);
+  if (!det.length) det.push(`<p>Sem legenda.</p>`);
+  return `<details class="item ${classe}"><summary><div class="topo"><h3>${esc(it.titulo)}</h3><span class="hora">${esc(quando)}</span></div>${chips(it)}</summary><div class="det">${det.join("")}</div></details>`;
+}
+
+function render() {
+  const semana = Date.now() - 7 * 864e5;
+  const fila = itens.filter((i) => i.pendente && !i.postado).sort((a, b) => String(a.horario).localeCompare(String(b.horario)));
+  const postados = itens.filter((i) => i.postado).sort((a, b) => String(b.horario).localeCompare(String(a.horario)));
+  const erros = itens.filter((i) => i.erro && !i.postado && !i.pendente);
+  $("nFila").textContent = fila.length;
+  $("nPost").textContent = postados.filter((i) => new Date(i.horario) >= semana).length;
+  $("nErro").textContent = erros.length;
+
+  const p = fila[0], box = $("proximo");
+  box.innerHTML = p
+    ? `<span class="ico">▶</span><div class="txt"><small>Próximo post · ${esc(falta(p.horario))}</small><b>${esc(p.titulo)}</b><span>${esc(fmtHora(p.horario))} · ${p.teste ? "Reels de teste" : "Perfil"} · ${p.via === "mac" ? "Mac" : "Nuvem"}</span></div>`
+    : `<span class="ico">✓</span><div class="txt"><small>Próximo post</small><b>Nada agendado</b><span>Quando um vídeo entrar na fila, ele aparece aqui.</span></div>`;
+  $("tituloLista").innerHTML = { fila: "Na <em>fila</em>", postados: "Já <em>no ar</em>", erros: "Precisa de <em>atenção</em>" }[aba];
+  const qtd = ({ fila, postados, erros }[aba]).length;
+  $("contaLista").textContent = qtd === 1 ? "1 item" : qtd + " itens";
+
+  const lista = { fila, postados, erros }[aba];
+  const vazio = { fila: "Fila vazia.", postados: "Nenhum post ainda.", erros: "Nenhum erro por aqui." }[aba];
+  $("lista").innerHTML = lista.length ? lista.map(card).join("") : `<p class="vazio">${vazio}</p>`;
+
+  const mac = linhas.mac?.atualizado, nuvem = linhas.nuvem?.atualizado;
+  $("visto").textContent = `Mac ${atras(mac)} · Nuvem ${atras(nuvem)}`;
+  const nuvemOk = nuvem && Date.now() - new Date(nuvem) < 50 * 6e4;
+  $("pulso").className = "pulso " + (nuvemOk ? "ok" : "alerta");
+  $("pulsoTxt").textContent = nuvemOk ? "Robô ativo" : "Nuvem sem sinal";
+}
+
+
+function aviso(html) { $("lista").innerHTML = `<div class="aviso">${html}</div>`; }
+
+async function api(corpo) {
+  const r = await fetch(API, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...corpo, codigo }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { const e = new Error("codigo"); e.codigo = true; throw e; }
+  if (!r.ok) throw new Error(j.erro || "Erro " + r.status);
+  return j;
+}
+
+async function buscar() {
+  try {
+    const j = await api({ acao: "dados" });
+    vapid = j.vapid;
+    linhas = {};
+    for (const r of j.linhas) linhas[r.id] = { dados: typeof r.dados === "string" ? JSON.parse(r.dados) : r.dados, atualizado: r.atualizado };
+    juntar(); render(); renderNotif(j.inscricoes);
+  } catch (e) {
+    if (e.codigo) return sair("Código inválido. Digite de novo.");
+    aviso(`<b>Sem conexão agora.</b><span>${esc(e.message)}. Tento de novo em 1 minuto.</span>`);
+  }
+}
+
+// ---------- notificações
+const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const instalado = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+function b64(s) { const p = "=".repeat((4 - s.length % 4) % 4); const r = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from([...r].map((c) => c.charCodeAt(0))); }
+
+async function renderNotif(nInscricoes) {
+  const box = $("notif");
+  const suporta = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  if (ehIOS && !instalado) {
+    box.innerHTML = `<div><b>Instale o app pra receber avisos</b><span>No Safari: Compartilhar → Adicionar à Tela de Início. Depois abra pelo ícone.</span></div>`;
+    return;
+  }
+  if (!suporta) { box.innerHTML = `<div><b>Notificações indisponíveis</b><span>Este navegador não aceita avisos. No iPhone, use o app da Tela de Início (iOS 16.4+).</span></div>`; return; }
+  let inscrito = false;
+  try { const reg = await navigator.serviceWorker.getRegistration(); inscrito = !!(reg && await reg.pushManager.getSubscription()); } catch {}
+  if (Notification.permission === "denied") {
+    box.innerHTML = `<div><b>Avisos bloqueados</b><span>Libere em Ajustes → Notificações → Postador.</span></div>`;
+  } else if (inscrito && Notification.permission === "granted") {
+    box.innerHTML = `<div><b>Avisos ativados ✓</b><span>Você recebe quando postar, entrar na fila ou der erro.</span></div><button class="btn" id="testar" type="button">Testar</button>`;
+    $("testar").onclick = async () => { $("testar").textContent = "Enviando…"; try { const j = await api({ acao: "testar" }); $("testar").textContent = j.enviados ? "Enviado ✓" : "Falhou"; } catch { $("testar").textContent = "Falhou"; } };
+  } else {
+    box.innerHTML = `<div><b>Ativar avisos</b><span>Receba no celular quando um Reels for postado.</span></div><button class="btn ouro" id="ativar" type="button">Ativar</button>`;
+    $("ativar").onclick = ativarNotif;
+  }
+}
+
+async function ativarNotif() {
+  const bt = $("ativar"); bt.textContent = "Ativando…";
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") throw new Error("permissão negada");
+    const reg = await navigator.serviceWorker.register("sw.js");
+    await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(vapid) });
+    await api({ acao: "inscrever", inscricao: sub.toJSON() });
+    await api({ acao: "testar" });
+  } catch (e) { bt.textContent = "Tentar de novo"; aviso(`<b>Não consegui ativar os avisos.</b><span>${esc(e.message)}</span>`); return; }
+  renderNotif();
+}
+
+// ---------- telas
+function mostrarApp() { $("telaLogin").hidden = true; $("telaApp").hidden = false; buscar(); }
+function sair(msg) {
+  codigo = ""; try { localStorage.removeItem("postador_codigo"); } catch {}
+  $("telaApp").hidden = true; $("telaLogin").hidden = false; $("msgLogin").textContent = msg || "";
+}
+$("entrar").onclick = async () => {
+  codigo = $("codigo").value.trim().toUpperCase();
+  $("msgLogin").textContent = "Conferindo…";
+  try { await api({ acao: "dados" }); try { localStorage.setItem("postador_codigo", codigo); } catch {} $("msgLogin").textContent = ""; mostrarApp(); }
+  catch (e) { $("msgLogin").textContent = e.codigo ? "Código não confere." : "Sem conexão. Tente de novo."; }
+};
+$("codigo").addEventListener("keydown", (e) => { if (e.key === "Enter") $("entrar").click(); });
+document.querySelectorAll(".abas button").forEach((b) => b.addEventListener("click", () => {
+  aba = b.dataset.aba;
+  document.querySelectorAll(".abas button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+  render();
+}));
+$("atualizar").onclick = () => buscar();
+$("sair").onclick = () => sair();
+setInterval(() => { if (!document.hidden && codigo) buscar(); }, 60000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && codigo) buscar(); });
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+codigo ? mostrarApp() : sair();
+</script>
+</body>
+</html>
