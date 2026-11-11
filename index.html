@@ -93,6 +93,10 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .det .msgerro { color: var(--erro); font-size: 12px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 14px; border-radius: 999px; background: var(--oliva); color: #F4EDE0; font: 600 10.5px var(--corpo); letter-spacing: .08em; text-transform: uppercase; text-decoration: none; border: 0; cursor: pointer; }
 .btn.ouro { background: linear-gradient(180deg, #E3B24A, #C99536); color: #241A10; }
+.acoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.acoes small { color: var(--suave); font-size: 11px; }
+.btn[disabled] { opacity: .6; cursor: default; }
+.chip.atraso { color: #8A5D1E; border-color: rgba(166,115,41,.4); background: rgba(242,182,50,.16); }
 .vazio { color: var(--suave); text-align: center; padding: 18px 8px; font-family: var(--serif); font-style: italic; font-size: 15px; }
 .aviso { background: var(--papel); border: 1px solid var(--fio); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.5; }
 .aviso b { font-family: var(--serif); font-weight: 400; font-size: 17px; }
@@ -233,27 +237,31 @@ function chips(it, extra = "") {
   if (it.postado) c.push(`<span class="chip ok">Postado</span>`);
   else if (it.postando) c.push(`<span class="chip ok">Postando…</span>`);
   else if (it.erro) c.push(`<span class="chip ruim">Erro</span>`);
+  else if (atrasado(it)) c.push(`<span class="chip atraso">Atrasado</span>`);
   else if (it.aguardaEnvio) c.push(`<span class="chip">Subindo pra nuvem</span>`);
   else c.push(`<span class="chip">${it.via === "mac" ? "Mac" : "Nuvem"}</span>`);
   return `<div class="chips">${c.join("")}${extra}</div>`;
 }
 
+const atrasado = (it) => it.pendente && !it.postado && !it.postando && !it.aguardaEnvio && it.horario && Date.now() - new Date(it.horario) > 10 * 6e4;
+const podeRepostar = (it) => !it.postado && (atrasado(it) || (it.erro && !it.pendente));
 function card(it) {
   const classe = it.postado ? "postado" : it.erro ? "erro" : "agendado";
   const quando = it.postado ? (it.quandoPost || fmtHora(it.horario)) : fmtHora(it.horario);
   const det = [];
   if (it.legenda) det.push(`<p>${esc(it.legenda)}</p>`);
   if (it.erro) det.push(`<p class="msgerro">${esc(it.erro)}</p>`);
+  if (podeRepostar(it)) det.push(`<div class="acoes"><button class="btn ouro" type="button" data-repostar="${esc(it.id)}">${it.erro ? "Tentar de novo agora" : "Postar agora"}</button><small>${it.teste ? "Vai como Reels de teste" : "Vai pro seu perfil"}</small></div>`);
   if (it.link) det.push(`<a class="btn ouro" href="${esc(it.link)}" target="_blank" rel="noopener">Abrir no Instagram ↗</a>`);
   if (!det.length) det.push(`<p>Sem legenda.</p>`);
-  return `<details class="item ${classe}"><summary><div class="topo"><h3>${esc(it.titulo)}</h3><span class="hora">${esc(quando)}</span></div>${chips(it)}</summary><div class="det">${det.join("")}</div></details>`;
+  return `<details class="item ${classe}" data-id="${esc(it.id)}"><summary><div class="topo"><h3>${esc(it.titulo)}</h3><span class="hora">${esc(quando)}</span></div>${chips(it)}</summary><div class="det">${det.join("")}</div></details>`;
 }
 
 function render() {
   const semana = Date.now() - 7 * 864e5;
   const fila = itens.filter((i) => i.pendente && !i.postado).sort((a, b) => String(a.horario).localeCompare(String(b.horario)));
   const postados = itens.filter((i) => i.postado).sort((a, b) => String(b.horario).localeCompare(String(a.horario)));
-  const erros = itens.filter((i) => i.erro && !i.postado && !i.pendente);
+  const erros = itens.filter((i) => (i.erro && !i.postado && !i.pendente) || atrasado(i));
   $("nFila").textContent = fila.length;
   $("nPost").textContent = postados.filter((i) => new Date(i.horario) >= semana).length;
   $("nErro").textContent = erros.length;
@@ -268,7 +276,10 @@ function render() {
 
   const lista = { fila, postados, erros }[aba];
   const vazio = { fila: "Fila vazia.", postados: "Nenhum post ainda.", erros: "Nenhum erro por aqui." }[aba];
+  if ($("lista").querySelector('[data-estado="confirmar"],[data-estado="enviando"]')) return;
+  const abertos = new Set([...$("lista").querySelectorAll("details[open]")].map((d) => d.dataset.id));
   $("lista").innerHTML = lista.length ? lista.map(card).join("") : `<p class="vazio">${vazio}</p>`;
+  $("lista").querySelectorAll("details").forEach((d) => { if (abertos.has(d.dataset.id)) d.open = true; });
 
   const mac = linhas.mac?.atualizado, nuvem = linhas.nuvem?.atualizado;
   $("visto").textContent = `Mac ${atras(mac)} · Nuvem ${atras(nuvem)}`;
@@ -359,6 +370,28 @@ document.querySelectorAll(".abas button").forEach((b) => b.addEventListener("cli
   document.querySelectorAll(".abas button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
   render();
 }));
+// ---------- "Postar agora" (toque 2x pra confirmar)
+$("lista").addEventListener("click", async (ev) => {
+  const bt = ev.target.closest("[data-repostar]"); if (!bt) return;
+  ev.preventDefault();
+  const dica = bt.nextElementSibling;
+  if (bt.dataset.estado !== "confirmar") {
+    bt.dataset.estado = "confirmar"; bt.dataset.texto = bt.textContent; bt.textContent = "Toque de novo pra confirmar";
+    setTimeout(() => { if (bt.dataset.estado === "confirmar") { bt.dataset.estado = ""; bt.textContent = bt.dataset.texto; } }, 4000);
+    return;
+  }
+  bt.dataset.estado = "enviando"; bt.disabled = true; bt.textContent = "Chamando o robô…";
+  try {
+    const j = await api({ acao: "repostar", id: bt.dataset.repostar });
+    bt.textContent = j.modo === "ja" ? "Já postado" : "Pedido enviado ✓";
+    if (dica) dica.textContent = j.msg || "";
+    setTimeout(buscar, 20000);
+  } catch (e) {
+    if (e.codigo) return sair("Código inválido. Digite de novo.");
+    bt.disabled = false; bt.dataset.estado = ""; bt.textContent = "Tentar de novo";
+    if (dica) dica.textContent = e.message;
+  }
+});
 $("atualizar").onclick = () => buscar();
 $("sair").onclick = () => sair();
 setInterval(() => { if (!document.hidden && codigo) buscar(); }, 60000);
