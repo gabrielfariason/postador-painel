@@ -114,11 +114,6 @@ footer button { background: none; border: 0; color: var(--ouro); font: 600 11px 
 .login input { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--fio); background: var(--papel); font: 600 16px var(--corpo); letter-spacing: .12em; text-transform: uppercase; color: var(--tinta); }
 .login input:focus { outline: 2px solid var(--ouro); outline-offset: 1px; }
 .login .msg { color: var(--erro); font-size: 12px; min-height: 16px; }
-.resgate { background: var(--oliva); color: #F4EDE0; border-radius: 14px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; line-height: 1.4; }
-.resgate div { display: flex; flex-direction: column; gap: 3px; }
-.resgate b { font-size: 13px; color: #F4EDE0; }
-.resgate span { color: rgba(244,237,224,.62); }
-.chip.atraso { color: #8A5D1E; border-color: rgba(166,115,41,.4); background: rgba(166,115,41,.12); }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -151,8 +146,6 @@ footer button { background: none; border: 0; color: var(--ouro); font: 600 11px 
 
   <section class="notif" id="notif" aria-live="polite"></section>
 
-  <section class="resgate" id="resgate" hidden aria-live="polite"></section>
-
   <section class="numeros" aria-label="Resumo">
     <div class="num"><span class="rotulo">Na fila</span><b id="nFila">–</b></div>
     <div class="num"><span class="rotulo">No ar · 7d</span><b id="nPost">–</b></div>
@@ -175,7 +168,7 @@ footer button { background: none; border: 0; color: var(--ouro); font: 600 11px 
 </main>
 <script>
 const API = "https://mdkvmsnbgcmbxwowvtzj.supabase.co/functions/v1/postador-app";
-let aba = "fila", itens = [], linhas = {}, vapid = "", codigo = "", ultimoDisparo = null, podeDisparar = false, disparando = false;
+let aba = "fila", itens = [], linhas = {}, vapid = "", codigo = "";
 try { codigo = localStorage.getItem("postador_codigo") || ""; } catch {}
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -234,16 +227,12 @@ function juntar() {
   itens = [...mapa.values()];
 }
 
-// Passou do horário (com 10 min de folga) e ainda não foi pro ar.
-const atrasado = (it) => it.pendente && !it.postado && !it.postando && it.horario && Date.now() - new Date(it.horario) > 10 * 6e4;
-
 function chips(it, extra = "") {
   const c = [];
   c.push(it.teste ? `<span class="chip teste">Reels de teste</span>` : `<span class="chip escuro">Perfil</span>`);
   if (it.postado) c.push(`<span class="chip ok">Postado</span>`);
   else if (it.postando) c.push(`<span class="chip ok">Postando…</span>`);
   else if (it.erro) c.push(`<span class="chip ruim">Erro</span>`);
-  else if (atrasado(it)) c.push(`<span class="chip atraso">Atrasado</span>`);
   else if (it.aguardaEnvio) c.push(`<span class="chip">Subindo pra nuvem</span>`);
   else c.push(`<span class="chip">${it.via === "mac" ? "Mac" : "Nuvem"}</span>`);
   return `<div class="chips">${c.join("")}${extra}</div>`;
@@ -256,7 +245,6 @@ function card(it) {
   if (it.legenda) det.push(`<p>${esc(it.legenda)}</p>`);
   if (it.erro) det.push(`<p class="msgerro">${esc(it.erro)}</p>`);
   if (it.link) det.push(`<a class="btn ouro" href="${esc(it.link)}" target="_blank" rel="noopener">Abrir no Instagram ↗</a>`);
-  if (!it.postado && (it.erro || atrasado(it))) det.push(`<button class="btn ouro" type="button" data-postar>${it.erro ? "Tentar postar de novo" : "Postar agora"}</button>`);
   if (!det.length) det.push(`<p>Sem legenda.</p>`);
   return `<details class="item ${classe}"><summary><div class="topo"><h3>${esc(it.titulo)}</h3><span class="hora">${esc(quando)}</span></div>${chips(it)}</summary><div class="det">${det.join("")}</div></details>`;
 }
@@ -282,9 +270,6 @@ function render() {
   const vazio = { fila: "Fila vazia.", postados: "Nenhum post ainda.", erros: "Nenhum erro por aqui." }[aba];
   $("lista").innerHTML = lista.length ? lista.map(card).join("") : `<p class="vazio">${vazio}</p>`;
 
-  renderResgate(fila.filter(atrasado), erros);
-  document.querySelectorAll("[data-postar]").forEach((b) => b.onclick = (e) => { e.preventDefault(); postarAgora(b); });
-
   const mac = linhas.mac?.atualizado, nuvem = linhas.nuvem?.atualizado;
   $("visto").textContent = `Mac ${atras(mac)} · Nuvem ${atras(nuvem)}`;
   const nuvemOk = nuvem && Date.now() - new Date(nuvem) < 50 * 6e4;
@@ -292,42 +277,6 @@ function render() {
   $("pulsoTxt").textContent = nuvemOk ? "Robô ativo" : "Nuvem sem sinal";
 }
 
-
-// ---------- botão "postar o que faltou"
-function renderResgate(atrasados, erros) {
-  const box = $("resgate");
-  const n = atrasados.length + erros.length;
-  const recente = ultimoDisparo && Date.now() - new Date(ultimoDisparo) < 8 * 6e4;
-  if (!n && !disparando) { box.hidden = true; return; }
-  box.hidden = false;
-  if (disparando || recente) {
-    box.innerHTML = `<div><b>Robô acionado ✓</b><span>Ele posta em 1 a 3 minutos. A lista atualiza sozinha.</span></div>`;
-    return;
-  }
-  const partes = [];
-  if (atrasados.length) partes.push(atrasados.length === 1 ? "1 atrasado" : atrasados.length + " atrasados");
-  if (erros.length) partes.push(erros.length === 1 ? "1 com erro" : erros.length + " com erro");
-  box.innerHTML = `<div><b>${partes.join(" · ")}</b><span>${podeDisparar ? "Aciona o robô agora pra postar o que faltou." : "Botão ainda não configurado no servidor."}</span></div>`
-    + (podeDisparar ? `<button class="btn ouro" type="button" data-postar>Postar agora</button>` : "");
-  const b = box.querySelector("[data-postar]"); if (b) b.onclick = () => postarAgora(b);
-}
-
-async function postarAgora(bt) {
-  if (disparando) return;
-  disparando = true; const txt = bt.textContent; bt.textContent = "Acionando…"; bt.disabled = true;
-  try {
-    const j = await api({ acao: "postar_agora" });
-    ultimoDisparo = new Date().toISOString();
-    bt.textContent = j.disparado ? "Acionado ✓" : "Já está rodando ✓";
-    setTimeout(buscar, 90000); setTimeout(buscar, 180000);
-  } catch (e) {
-    bt.textContent = txt; bt.disabled = false; disparando = false;
-    aviso(`<b>Não consegui acionar o robô.</b><span>${esc(e.message)}</span>`);
-    return;
-  }
-  setTimeout(() => { disparando = false; render(); }, 8 * 6e4);
-  render();
-}
 
 function aviso(html) { $("lista").innerHTML = `<div class="aviso">${html}</div>`; }
 
@@ -342,7 +291,7 @@ async function api(corpo) {
 async function buscar() {
   try {
     const j = await api({ acao: "dados" });
-    vapid = j.vapid; ultimoDisparo = j.ultimo_disparo || ultimoDisparo; podeDisparar = !!j.pode_disparar;
+    vapid = j.vapid;
     linhas = {};
     for (const r of j.linhas) linhas[r.id] = { dados: typeof r.dados === "string" ? JSON.parse(r.dados) : r.dados, atualizado: r.atualizado };
     juntar(); render(); renderNotif(j.inscricoes);
